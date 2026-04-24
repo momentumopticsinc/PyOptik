@@ -32,6 +32,9 @@ dependencies = [
 packages = {find = {where = ["."], include = ["PyOptik*"]}}
 include-package-data = true
 
+[tool.setuptools.package-data]
+PyOptik = ["RIDB/**/*.yml"]
+
 
 [tool.setuptools_scm]
 write_to = "PyOptik/_version.py"

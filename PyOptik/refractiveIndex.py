@@ -107,7 +107,7 @@ class Material:
         self.refractiveIndex = None
         self.extinctionCoefficient = None
 
-        filename = "PyOptik/RIDB/data/" + filename
+        filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "RIDB", "data", os.path.normpath(filename))
 
         with open(filename, "rt", encoding="utf-8") as f:
             material = yaml.safe_load(f)
