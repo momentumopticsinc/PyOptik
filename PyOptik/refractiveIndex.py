@@ -107,6 +107,8 @@ class Material:
         self.refractiveIndex = None
         self.extinctionCoefficient = None
 
+        filename = "PyOptik/RIDB/data/" + filename
+
         with open(filename, "rt", encoding="utf-8") as f:
             material = yaml.safe_load(f)
 
