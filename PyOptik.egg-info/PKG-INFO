@@ -1,43 +1,57 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: PyOptik
-Version: 0.0.3
-Summary: A package to import refractive indexes from RefractiveIndex.INFO
-Home-page: https://github.com/paaube/PyRI
-Author: ('Martin Poinsinet de Sivry, Pierre-Alexandre Aubé',)
-Author-email: martin.poinsinet-de-sivry@polymtl.ca, pierre-alexandre.aube@polymtl.ca
-License: MIT
-Description: 
-        PyRI
-        ====
-        
-        PyRI is a tool that can be used to import refractive indexes and extinction
-        coefficients for different materials at different wavelengths. This data can then
-        be used for different applications like simulating light interaction's with
-        particules. All the data comes from RefractiveIndex.INFO.
-        
-        Throughout the library, a few key acronyms are used:
-        
-        * wl: wavelength
-        * ri: refractive index
-        * ec: extinction coefficient
-        
-        PyRI includes functions that let you import experimental data or Sellmeier's
-        formula for different materials and store it locally. This data can then easily
-        be called and used.
-        
-        Below is an example of how to import new experimental data and then how to
-        use it. For more examples, please visit the Examples section of the documentation.
-        
-Platform: UNKNOWN
-Classifier: License :: OSI Approved :: MIT License
-Classifier: Operating System :: Unix
+Version: 0.0
+Summary: A package for refractive index values.
+Author-email: Martin Poinsinet de Sivry-Houle <martin.poinsinet.de.sivry@gmail.com>
+Keywords: refractive index,optics
 Classifier: Programming Language :: Python
 Classifier: Programming Language :: Python :: 3
-Classifier: Programming Language :: Python :: 3.8
-Classifier: Programming Language :: Python :: 3.9
-Classifier: Programming Language :: Python :: Implementation :: PyPy
-Classifier: Development Status :: 3 - Alpha
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Development Status :: 4 - Beta
 Classifier: Topic :: Scientific/Engineering :: Physics
 Classifier: Intended Audience :: Science/Research
-Requires-Python: >=3.6
-Description-Content-Type: text/markdown
+Requires-Python: >=3.10
+Description-Content-Type: text/x-rst
+License-File: LICENSE.md
+Requires-Dist: numpy
+Requires-Dist: matplotlib~=3.8
+Provides-Extra: testing
+Requires-Dist: pytest<9.0,>=7.4; extra == "testing"
+Requires-Dist: pytest-cov<6,>=2; extra == "testing"
+Requires-Dist: pytest-json-report~=1.5; extra == "testing"
+Requires-Dist: coverage~=7.6; extra == "testing"
+Provides-Extra: documentation
+Requires-Dist: numpydoc==1.6.0; extra == "documentation"
+Requires-Dist: sphinx>=5.1.1; extra == "documentation"
+Requires-Dist: sphinx-gallery==0.15.0; extra == "documentation"
+Requires-Dist: sphinx-rtd-theme==2.0.0; extra == "documentation"
+Requires-Dist: pydata-sphinx-theme==0.14.1; extra == "documentation"
+Provides-Extra: dev
+Requires-Dist: flake8==7.1.1; extra == "dev"
+Dynamic: license-file
+
+PyRI
+====
+
+PyRI is a tool that can be used to import refractive indexes and extinction
+coefficients for different materials at different wavelengths. This data can then
+be used for different applications like simulating light interaction's with
+particules. All the data comes from RefractiveIndex.INFO.
+
+Throughout the library, a few key acronyms are used:
+
+* wl: wavelength
+* ri: refractive index
+* ec: extinction coefficient
+
+PyRI includes functions that let you import experimental data or Sellmeier's
+formula for different materials and store it locally. This data can then easily
+be called and used.
+
+Below is an example of how to import new experimental data and then how to
+use it. For more examples, please visit the Examples section of the documentation.
+
+Installation
+====
+
+python setup.py install (or develop)
