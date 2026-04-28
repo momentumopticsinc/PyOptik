@@ -173,8 +173,8 @@ class Material:
         """
         if self.refractiveIndex is None:
             raise Exception('No refractive index specified for this material')
-        else:
-            return self.refractiveIndex.getRefractiveIndex(wavelength)
+
+        return self.refractiveIndex.getRefractiveIndex(wavelength)
 
     def getExtinctionCoefficient(self, wavelength):
         """
@@ -184,8 +184,22 @@ class Material:
         """
         if self.extinctionCoefficient is None:
             raise NoExtinctionCoefficient('No extinction coefficient specified for this material')
-        else:
-            return self.extinctionCoefficient.getExtinctionCoefficient(wavelength)
+
+        return self.extinctionCoefficient.getExtinctionCoefficient(wavelength)
+
+    def getAbbeNumber(self):
+        """
+
+        :return: :raise NoExtinctionCoefficient:
+        """
+        if self.refractiveIndex is None:
+            raise Exception('No refractive index, cannot calculate Abbe number')
+
+        nF = self.refractiveIndex.getRefractiveIndex(0.4861)
+        nC = self.refractiveIndex.getRefractiveIndex(0.6563)
+        nD = self.refractiveIndex.getRefractiveIndex(0.5876)
+
+        return (nD - 1) / (nF - nC)
 
 
 #
