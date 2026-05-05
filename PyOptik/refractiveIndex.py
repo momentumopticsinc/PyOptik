@@ -195,9 +195,9 @@ class Material:
         if self.refractiveIndex is None:
             raise Exception('No refractive index, cannot calculate Abbe number')
 
-        nF = self.refractiveIndex.getRefractiveIndex(486.1)
-        nC = self.refractiveIndex.getRefractiveIndex(656.3)
-        nD = self.refractiveIndex.getRefractiveIndex(587.6)
+        nF = self.refractiveIndex.getRefractiveIndex(486.13)
+        nC = self.refractiveIndex.getRefractiveIndex(656.27)
+        nD = self.refractiveIndex.getRefractiveIndex(587.56)
 
         return (nD - 1) / (nF - nC)
 
