@@ -106,11 +106,24 @@ class Material:
         """
         self.refractiveIndex = None
         self.extinctionCoefficient = None
+        self.thermalDispersion = None
+        self.referenceTemperature = None
 
         filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "RIDB", "data", os.path.normpath(filename))
 
         with open(filename, "rt", encoding="utf-8") as f:
             material = yaml.safe_load(f)
+
+        # Reference temperature (T0) at which the refractive index data is defined.
+        conditions = material.get('CONDITIONS') or {}
+        if 'temperature' in conditions:
+            self.referenceTemperature = float(conditions['temperature'])
+
+        # Thermal dispersion coefficients (Schott model), if the material provides them.
+        properties = material.get('PROPERTIES') or {}
+        if 'thermal_dispersion' in properties:
+            self.thermalDispersion = ThermalDispersionData.setupThermalDispersion(
+                properties['thermal_dispersion'], self.referenceTemperature)
 
         for data in material['DATA']:
             if (data['type'].split())[0] == 'tabulated':
@@ -165,16 +178,27 @@ class Material:
                                                                                 rangeMax=rangeMax,
                                                                                 coefficients=coefficents)
 
-    def getRefractiveIndex(self, wavelength):
+    def getRefractiveIndex(self, wavelength, temperature=None):
         """
 
-        :param wavelength:
+        :param wavelength: wavelength in nm
+        :param temperature: temperature in the same units as the material's
+            reference temperature (Kelvin in the refractiveindex.info database).
+            If None, the refractive index at the reference temperature is returned.
         :return: :raise Exception:
         """
         if self.refractiveIndex is None:
             raise Exception('No refractive index specified for this material')
 
-        return self.refractiveIndex.getRefractiveIndex(wavelength)
+        n = self.refractiveIndex.getRefractiveIndex(wavelength)
+
+        if temperature is not None:
+            if self.thermalDispersion is None:
+                raise Exception('No thermal dispersion data specified for this material')
+            # Formula works in micrometres; getRefractiveIndex() takes nm.
+            n += self.thermalDispersion.getDeltaN(n, wavelength / 1000.0, temperature)
+
+        return n
 
     def getExtinctionCoefficient(self, wavelength):
         """
@@ -351,6 +375,80 @@ class TabulatedRefractiveIndexData:
             raise Exception(
                 'Wavelength {} is out of bounds. Correct range(um): ({}, {})'.format(wavelength, self.rangeMin,
                                                                                      self.rangeMax))
+
+
+#
+# Thermal Dispersion
+#
+class ThermalDispersionData:
+    """Abstract ThermalDispersion class"""
+
+    @staticmethod
+    def setupThermalDispersion(thermalDispersion, referenceTemperature):
+        """
+
+        :param thermalDispersion: the 'thermal_dispersion' list from a material's PROPERTIES
+        :param referenceTemperature: temperature (T0) at which the base index is defined
+        :return: :raise Exception:
+        """
+        entry = thermalDispersion[0]
+        formula = entry['type'].split()[-1]
+        coefficients = [float(s) for s in entry['coefficients'].split()]
+
+        if formula == 'A':
+            return SchottThermalDispersionData(coefficients, referenceTemperature)
+        else:
+            raise FormulaNotImplemented(
+                'Thermal dispersion formula {} not yet implemented'.format(formula))
+
+    def getDeltaN(self, referenceIndex, wavelength, temperature):
+        """
+
+        :param referenceIndex:
+        :param wavelength:
+        :param temperature:
+        :raise NotImplementedError:
+        """
+        raise NotImplementedError('Different for each thermal dispersion formula')
+
+
+class SchottThermalDispersionData(ThermalDispersionData):
+    """Schott thermal dispersion model ('formula A' in refractiveindex.info).
+
+    Computes the change in the absolute refractive index with temperature:
+
+        dn(l, T) = (n**2 - 1) / (2 * n) *
+                   (D0*dT + D1*dT**2 + D2*dT**3 + (E0*dT + E1*dT**2)/(l**2 - lTK**2))
+
+    where dT = T - T0, l is the wavelength in micrometres and n is the refractive
+    index at the reference temperature T0.
+    """
+
+    def __init__(self, coefficients, referenceTemperature):
+        """
+
+        :param coefficients: [D0, D1, D2, E0, E1, lambdaTK]
+        :param referenceTemperature: reference temperature T0
+        """
+        if referenceTemperature is None:
+            raise Exception('Thermal dispersion requires a reference temperature (CONDITIONS.temperature)')
+        self.D0, self.D1, self.D2, self.E0, self.E1, self.lambdaTK = coefficients
+        self.referenceTemperature = referenceTemperature
+
+    def getDeltaN(self, referenceIndex, wavelength, temperature):
+        """
+
+        :param referenceIndex: refractive index at the reference temperature T0
+        :param wavelength: wavelength in micrometres
+        :param temperature: temperature at which to evaluate the index
+        :return: change in absolute refractive index relative to T0
+        """
+        dT = temperature - self.referenceTemperature
+        n = referenceIndex
+        return (n ** 2 - 1) / (2 * n) * (
+            self.D0 * dT + self.D1 * dT ** 2 + self.D2 * dT ** 3
+            + (self.E0 * dT + self.E1 * dT ** 2) / (wavelength ** 2 - self.lambdaTK ** 2)
+        )
 
 
 #
