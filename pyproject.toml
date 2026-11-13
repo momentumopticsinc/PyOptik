@@ -46,7 +46,8 @@ testing = [
     "pytest >=7.4,<9.0",
     "pytest-cov >=2,<6",
     "pytest-json-report ~=1.5",
-    "coverage ~=7.6"
+    "coverage ~=7.6",
+    "radon ==6.0.1",
 ]
 
 
