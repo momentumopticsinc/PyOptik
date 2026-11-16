@@ -1,0 +1,8 @@
+{
+  "radonVersion": "6.0.1",
+  "pythonVersion": "3.10",
+  "radonArguments": ["cc", "--json", "--show-closures", "--min", "A", "--max", "F", "-"],
+  "excludedDirectories": [".venv", "venv", "build", "dist", "vendor", "generated", "PyOptik.egg-info", "_version.py"],
+  "maxFiles": 100,
+  "maxFileBytes": 2097152
+}
